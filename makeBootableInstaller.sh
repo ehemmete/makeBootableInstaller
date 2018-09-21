@@ -35,7 +35,7 @@ esac
 
 echo "Creating installer dmg for macOS $osVersion $osBuild."
 
-outputDisplay="Install macOS $osName $osVersion $osBuild"
+outputDisplay="Install macOS $osName $osVersion $osBuild Installer"
 outputFilename=$(echo "$outputDisplay" | sed 's, ,_,g' )
 tempDirectory=$(mktemp -d)
 
@@ -46,10 +46,17 @@ attachedSource=$(hdiutil attach -plist "$installSource"| awk -F"<|>" '/mount-poi
 echo "Mounting source dmg."
 
 echo "Creating macOS install media."
-"${attachedSource}/Install macOS $osName.app/Contents/Resources/createinstallmedia" --volume "$attachedOutput" --nointeraction
+installOutput=$("${attachedSource}/Install macOS $osName.app/Contents/Resources/createinstallmedia" --volume "$attachedOutput" --nointeraction)
+
+if [[ $osMajor -ge 14 ]]; then
+	attachedCreateOutput="$(awk -F\" '{print $2}' <<< $installOutput)"
+	hdiutil eject -quiet "$attachedCreateOutput"
+else
+	hdiutil eject -quiet "/Volumes/Install macOS $osName 1"
+fi
 
 hdiutil eject -quiet "$attachedSource"
-hdiutil eject -quiet "/Volumes/Install macOS $osName 1"
+
 
 echo "Converting sparseimage to dmg."
 hdiutil convert -format UDZO -quiet -o ${tempDirectory}/${outputFilename}.dmg ${tempDirectory}/${outputFilename}.sparseimage
