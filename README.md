@@ -5,9 +5,11 @@ This script takes a .dmg from [installinstallmacos.py](https://github.com/munki/
 
 Usage: sudo makeBootableInstaller.sh /path/to/installinstallmacos.py_output.dmg
 
+Tested with High Sierra and Mojave dmgs.
 
+### Concerns
 I'm not happy with line 52 
 ```
 hdiutil eject -quiet "/Volumes/Install macOS $osName 1"
 ```
-but createinstallmedia changes the name of the volume (and doesn't output the name), and it should always match what the installer volume is called.
+but createinstallmedia changes the name of the volume (and doesn't output the name), and it should always match what the installer volume is called, so I think this should continue to work.
